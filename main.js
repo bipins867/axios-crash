@@ -1,46 +1,129 @@
+
 // GET REQUEST
 function getTodos() {
-  console.log('GET Request');
+
+  // axios({
+  //   method:'get',
+  //   url:'https://jsonplaceholder.typicode.com/todos',
+  //   params:{_limit:10},
+  // })
+  // .then((m)=>showOutput(m))
+  // .catch((m)=>console.log(m))
+
+  axios('https://jsonplaceholder.typicode.com/todos',{params:{_limit:5}})
+  .then((m)=>showOutput(m))
+  .catch((m)=>console.log(m))
+
+  
 }
 
 // POST REQUEST
 function addTodo() {
-  console.log('POST Request');
+  // axios({
+  //   method:'post',
+  //   url:'https://jsonplaceholder.typicode.com/todos',
+  //   data:{
+  //     title:"This is Mr. Lucifer",
+  //     completed:false,
+  //   }
+  // })
+  axios.post('https://jsonplaceholder.typicode.com/todos',{title:'This is Lucifer',completed:false})
+  .then((m)=>showOutput(m))
+  .catch((m)=>console.log(m))
 }
 
 // PUT/PATCH REQUEST
 function updateTodo() {
-  console.log('PUT/PATCH Request');
+  axios.patch('https://jsonplaceholder.typicode.com/todos/1',{title:'This is Lucifer',completed:false})
+  .then((m)=>showOutput(m))
+  .catch((m)=>console.log(m))
 }
 
 // DELETE REQUEST
 function removeTodo() {
-  console.log('DELETE Request');
+  axios.delete('https://jsonplaceholder.typicode.com/todos/1')
+  .then((m)=>showOutput(m))
+  .catch((m)=>console.log(m))
 }
 
 // SIMULTANEOUS DATA
 function getData() {
-  console.log('Simultaneous Request');
+  axios.all([
+    axios('https://jsonplaceholder.typicode.com/todos',{params:{_limit:5}}),
+    axios.post('https://jsonplaceholder.typicode.com/todos',{title:'This is Lucifer',completed:false})
+  ])
+  .then(axios.spread((get,post)=>{
+    console.log(get);
+    console.log(post)
+  }))
+  // .then((values)=>{
+  //   console.log(values[0])
+  //   console.log(values[1])
+  //   showOutput(values[0])
+  // })
 }
 
 // CUSTOM HEADERS
 function customHeaders() {
-  console.log('Custom Headers');
+  config={
+    headers:{
+      'Content-Type':'application/json',
+      Authorization:'Some kind of token'
+    }
+  }
+  axios.post('https://jsonplaceholder.typicode.com/todos',{title:'This is Lucifer',completed:false},config)
+  .then((m)=>showOutput(m))
+  .catch((m)=>console.log(m))
 }
 
 // TRANSFORMING REQUESTS & RESPONSES
 function transformResponse() {
-  console.log('Transform Response');
+   const options={
+    method:'post',
+    url:'https://jsonplaceholder.typicode.com/todos',
+    data:{
+      title:'Hello There'
+    },
+    transformResponse:axios.defaults.transformResponse.concat(data=>{
+      data.title=data.title.toUpperCase();
+      return data
+    })
+   }
+
+   axios(options).then(data=>showOutput(data))
 }
 
 // ERROR HANDLING
 function errorHandling() {
-  console.log('Error Handling');
+  axios('https://jsonplaceholder.typicode.com/todoss',{params:{_limit:5}})
+  .then((m)=>showOutput(m))
+  .catch((error)=>{
+    console.log(error)
+    console.log(error.response.data)
+    console.log(error.response.status)
+    console.log(error.response.headers)
+
+    if(error.response.status==404){
+      alert("Page not found")
+    }
+  })
 }
 
 // CANCEL TOKEN
 function cancelToken() {
-  console.log('Cancel Token');
+  const source=axios.CancelToken.source();
+  axios.get('https://jsonplaceholder.typicode.com/todos',
+  {cancelToken:source.token})
+  .then((m)=>showOutput(m))
+  .catch((error)=>{
+    if(axios.isCancel(error)){
+      console.log("Request canceled")
+    }
+  })
+
+  if(true){
+    source.cancel("Request Canceled");
+  }
 }
 
 // INTERCEPTING REQUESTS & RESPONSES
